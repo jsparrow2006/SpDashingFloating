@@ -1,0 +1,12 @@
+.floatingWrapper {
+  width: 100vw;
+  height: 100vh;
+  background-color: #31353F;
+
+  .mainArea {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 205px;
+  }
+}

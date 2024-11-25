@@ -1,0 +1,27 @@
+.appItemWrapper {
+  margin: 10px 14px;
+  height: fit-content;
+
+  .appIcon {
+    display: flex;
+    width: 99px;
+    height: 99px;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: #596067;
+    overflow: hidden;
+
+    img {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .appName {
+    font-size: 12px;
+    color: white;
+  }
+}
