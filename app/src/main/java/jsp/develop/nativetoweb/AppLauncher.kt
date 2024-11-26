@@ -2,7 +2,6 @@ package jsp.develop.nativetoweb
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.util.Log
 import android.webkit.JavascriptInterface
 import android.widget.Toast
 
@@ -29,7 +28,6 @@ open class AppLauncher(private val context: Context) {
             putExtra("url", url)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
-
         context.startActivity(intent)
     }
 }

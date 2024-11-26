@@ -10,6 +10,20 @@ android {
     namespace = "jsp.develop.floatingdashing"
     compileSdk = 34
 
+    buildFeatures {
+        buildConfig = true
+    }
+    buildTypes {
+        debug {
+            buildConfigField("String", "URL", "\"http://10.0.2.2:8080\"")
+            buildConfigField("boolean", "IS_DEV", "true")
+        }
+        release {
+            buildConfigField("String", "URL", "\"http://localhost:8080\"")
+            buildConfigField("boolean", "IS_DEV", "false")
+        }
+    }
+
     packaging {
         excludes += "META-INF/INDEX.LIST"
         excludes += "META-INF/INDEX.LIST.meta"

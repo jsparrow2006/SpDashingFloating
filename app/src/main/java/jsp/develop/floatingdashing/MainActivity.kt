@@ -5,10 +5,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import android.provider.Settings
 import android.util.Log
 
@@ -20,7 +17,6 @@ class MainActivity : AppCompatActivity() {
         if (checkOverlayPermission()) {
             startFloatingService()
             finish()
-//            moveTaskToBack(true)
         } else {
             requestOverlayPermission()
         }
@@ -35,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Settings.canDrawOverlays(this)
         } else {
-            true // Для старых версий Android разрешение не требуется
+            true
         }
     }
 

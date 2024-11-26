@@ -3,8 +3,12 @@ package jsp.develop.nativetoweb
 import android.annotation.SuppressLint
 import android.util.Log
 import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.webkit.WebViewClient
+import jsp.develop.floatingdashing.BuildConfig
+
 
 @SuppressLint("SetJavaScriptEnabled")
 class nativeToWeb(val webView: WebView) {
@@ -22,10 +26,13 @@ class nativeToWeb(val webView: WebView) {
         webSettings.javaScriptCanOpenWindowsAutomatically = true
         WebView.setWebContentsDebuggingEnabled(true);
         webView.addJavascriptInterface(this, "_AndroidSpNative")
+        webView.setBackgroundColor(0x00000000)
+
     }
 
     fun loadUrl(url: String) {
-        webView.loadUrl(url)
+        val baseUrl = BuildConfig.URL ?: "http://localhost:8080"
+        webView.loadUrl("${baseUrl}${url}")
     }
 
     fun sendEventToWeb(event: String, data: Any) {

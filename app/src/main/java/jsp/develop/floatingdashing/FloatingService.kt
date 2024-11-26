@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.IBinder
@@ -16,10 +17,11 @@ import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import jsp.develop.nativetoweb.AppProvider
 import jsp.develop.nativetoweb.LocalServer
-//import jsp.develop.nativetoweb.LocalServer
 import jsp.develop.nativetoweb.nativeToWeb
+import kotlin.properties.Delegates
 
 
 class FloatingService : Service() {
@@ -27,11 +29,17 @@ class FloatingService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var floatingView: View
     private lateinit var nativeBridge: nativeToWeb
+    private lateinit var floatingWindowParams: SharedPreferences
+    private var floatingWindowX by Delegates.notNull<Int>()
+    private var floatingWindowY: Int = 0
+    private var floatingWindowWidth: Int = 0
+    private var floatingWindowHeight: Int = 0
+    private var floatingWindowOpenHeight: Int = 0
 
     @SuppressLint("ClickableViewAccessibility")
-    val layoutParams = WindowManager.LayoutParams(
-        512,
-        205, //215  //720
+    private var layoutParams = WindowManager.LayoutParams(
+        0,
+        0,
         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
         PixelFormat.TRANSLUCENT
@@ -39,36 +47,28 @@ class FloatingService : Service() {
 
     private lateinit var webView: WebView
 
-    class WebAppInterface(private val context: Context) {
-        @JavascriptInterface
-        fun showToast(message: String) {
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Ваша логика сервиса
-        return START_STICKY // Или другой необходимый вам флаг
-    }
-
     @SuppressLint("ClickableViewAccessibility", "SetJavaScriptEnabled")
     override fun onCreate() {
         super.onCreate()
-        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-
         val localServer = LocalServer()
         localServer.start()
 
-        // Указываем позицию окна
-        layoutParams.gravity = Gravity.TOP or Gravity.START
-        layoutParams.x = 32 // координата X
-        layoutParams.y = 10 // координата Y
+        floatingWindowParams = getSharedPreferences("FloatingWindow", MODE_PRIVATE)
+        floatingWindowX = floatingWindowParams.getInt("X", 30)
+        floatingWindowY = floatingWindowParams.getInt("Y", 16)
+        floatingWindowWidth = floatingWindowParams.getInt("Width", 512)
+        floatingWindowHeight = floatingWindowParams.getInt("Height", 205)
+        floatingWindowOpenHeight = floatingWindowParams.getInt("OpenHeight", 724)
 
-        // Создаем View плавающего окна
+        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        layoutParams.gravity = Gravity.TOP or Gravity.START
+        layoutParams.width = floatingWindowWidth
+        layoutParams.height = floatingWindowHeight
+        layoutParams.x = floatingWindowX
+        layoutParams.y = floatingWindowY
         floatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_view, null)
         windowManager.addView(floatingView, layoutParams)
 
-        // Обработка касаний для перетаскивания окна
         floatingView.setOnTouchListener { v, event ->
 //            when (event.action) {
 //                MotionEvent.ACTION_MOVE -> {
@@ -82,23 +82,10 @@ class FloatingService : Service() {
 
         webView = floatingView.findViewById(R.id.floatingWebView)
         nativeBridge = nativeToWeb(webView)
-//        nativeBridge.loadUrl("http://10.0.2.2:8080/floating")
-//        nativeBridge.loadUrl("http://localhost:8080")
-//        nativeBridge.loadUrl("http://localhost:8080/files")
-        nativeBridge.registerModuleInWeb(WebAppInterface(this), "Android")
         nativeBridge.registerModuleInWeb(this, "FloatingWindow")
         nativeBridge.registerModuleInWeb(AppProvider(this), "AppProvider")
-//        nativeBridge.loadUrl("http://localhost:8080/floating")
-        nativeBridge.loadUrl("http://10.0.2.2:8080/floating")
+        nativeBridge.loadUrl("/floating")
     }
-
-//    if (BuildConfig.DEBUG) {
-//        // Код для дебаг-сборки
-//        println("Это дебаг-сборка")
-//    } else {
-//        // Код для релиз-сборки
-//        println("Это релиз-сборка")
-//    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -125,11 +112,11 @@ class FloatingService : Service() {
         handler.post {
             val targetHeight: Number
 
-            if (layoutParams.height == 205) {
-                targetHeight = 730
+            if (layoutParams.height == floatingWindowHeight) {
+                targetHeight = floatingWindowOpenHeight
                 nativeBridge.sendEventToWeb("floatingWindow:isOpen", true)
             } else {
-                targetHeight = 205
+                targetHeight = floatingWindowHeight
                 nativeBridge.sendEventToWeb("floatingWindow:isOpen", false)
             }
             val animator = ValueAnimator.ofInt(layoutParams.height, targetHeight)
