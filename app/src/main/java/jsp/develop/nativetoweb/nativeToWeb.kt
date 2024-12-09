@@ -14,6 +14,7 @@ import jsp.develop.floatingdashing.BuildConfig
 class nativeToWeb(val webView: WebView) {
     val webSettings: WebSettings = webView.getSettings()
 
+    @get:JavascriptInterface
     val registeredModules  = mutableListOf<String>();
 
     init {
@@ -45,8 +46,10 @@ class nativeToWeb(val webView: WebView) {
             Log.w("[REGISTER NATIVE MODULES]", "$name module already registered")
         } else {
             Log.i("[REGISTER NATIVE MODULES]", "$name module registered")
-            webView.addJavascriptInterface(module, name)
             registeredModules.add(name)
+            webView.addJavascriptInterface(module, name)
+            webView.addJavascriptInterface(this, "_AndroidSpNative")
+            webView.evaluateJavascript("window.registeredModules=${registeredModules.toString()}", null)
         }
     }
 

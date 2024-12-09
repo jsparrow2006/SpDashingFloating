@@ -1,0 +1,33 @@
+.moreButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 55px;
+  height: 55px;
+  background-color: var(--androoid-background-color);
+  position: absolute;
+  bottom: 0px;
+  border-radius: 50% 50% 0 0;
+  left: calc((100% /2) - 23px);
+  color: var(--primary-color);
+  font-size: 35px;
+
+  &.isOpen {
+    color: var(--secondary-color);
+  }
+}
+.moreButton:before,
+.moreButton:after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 14px; height: 15px;
+}
+.moreButton:before {
+  right: 100%; bottom: 0;
+  background-image: radial-gradient(circle at 0 0, transparent 14px, var(--androoid-background-color) 15px);
+}
+.moreButton:after {
+  left: 100%; bottom: 0;
+  background-image: radial-gradient(circle at 100% 0, transparent 14px, var(--androoid-background-color) 15px);
+}

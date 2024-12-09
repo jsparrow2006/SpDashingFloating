@@ -1,19 +1,17 @@
 .sliderWrapper {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  width: 100%;
+  height: 100%;
 
   .pointsWrapper {
     display: flex;
     justify-content: center;
     flex-direction: row;
     width: 100%;
-    //height: 3px;
 
     .point {
       display: flex;
-      //flex-grow: 1;
-      //margin-right: 1px;
       margin: 3px;
       height: 5px;
       width: 5px;

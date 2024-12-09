@@ -9,33 +9,6 @@ interface ISlider {
 const Slider: React.FC<ISlider> = (props) => {
     const { slides = [] } = props;
     const [activeSlide, setActiveSlide] = useState(0);
-    const sliderRef = useRef(null);
-
-    const handleScroll = () => {
-        const scrollLeft = sliderRef.current.scrollLeft;
-        const slideWidth = sliderRef.current.clientWidth;
-
-        const currentSlide = Math.round(scrollLeft / slideWidth);
-        setActiveSlide(currentSlide);
-    };
-
-    useEffect(() => {
-        const slider = sliderRef.current;
-        slider.addEventListener('scroll', handleScroll);
-
-        return () => {
-            slider.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
-
-    const setSlide = (index) => {
-        if (index < 0 || index >= slides.length) return;
-        setActiveSlide(index);
-        sliderRef.current.scrollTo({
-            left: sliderRef.current.clientWidth * index,
-            behavior: 'smooth',
-        });
-    };
 
     return (
         <div className="sliderWrapper">
@@ -44,7 +17,7 @@ const Slider: React.FC<ISlider> = (props) => {
                     return <span key={`slide-point-${index}`} className={`point${index === activeSlide ? ' active' : ''} `} />
                 })}
             </div>
-            <div className="slider" ref={sliderRef}>
+            <div className="slider">
                 {slides.map((slide, index) => (
                     <div
                         className="slide"
@@ -54,11 +27,6 @@ const Slider: React.FC<ISlider> = (props) => {
                     </div>
                 ))}
             </div>
-            {/*<div className="navigation">*/}
-            {/*    <button onClick={() => setSlide(activeSlide - 1)}>Prev</button>*/}
-            {/*    <span>Slide {activeSlide + 1}</span>*/}
-            {/*    <button onClick={() => setSlide(activeSlide + 1)}>Next</button>*/}
-            {/*</div>*/}
         </div>
     );
 };

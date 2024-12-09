@@ -2,58 +2,54 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import SpNative from '../../lib/SpNative/index'
 
-import { IApplication } from '../../components/appList/appList';
+import IFloatingWindowParams from '../../lib/SpNative/types/IFloatingWindowParams';
+import IApp from '../../lib/SpNative/types/IApp';
 
 import Slider from '../../components/slider/slider';
 import AppList from '../../components/appList/appList';
-import MoreButton from '../../components/slider/components/moreButton'
+import MoreButton from '../../components/common/moreButton/moreButton'
+import TimeAndTemperature from '../../components/timeAndTemperature/timeAndTemperature'
 
 import './floatingWindow.scss'
 
 const FloatingWindow: React.FC = () => {
     const [isOpenWindow, setIsOpenWindow] = useState<boolean>(false);
-    const [appList, setAppList] = useState<IApplication[]>([])
+    const [appList, setAppList] = useState<IApp[]>([])
+    const [windowParams, setWindowParams] = useState<IFloatingWindowParams>({} as IFloatingWindowParams)
 
-    const { handleOpenWindow, getAppsListJson, launchApp, launchWebActivity } = SpNative.getAndroidModules(['FloatingWindow', 'AppProvider']);
+    const floatingWindow = SpNative.getNativeModules().FloatingWindow;
+    const AppProvider = SpNative.getNativeModules().AppProvider
 
     useEffect(() => {
-        SpNative.subscribeEvent('floatingWindow:isOpen', onOpenWindow)
+        setWindowParams(floatingWindow.getWindowParams())
         loadApps()
-        return () => {
-            SpNative.unSubscribeEvent('floatingWindow:isOpen', onOpenWindow)
-        }
     }, [])
 
     const loadApps = () => {
-        const apps = getAppsListJson()
-        setAppList(JSON.parse(apps))
-        console.log(JSON.parse(getAppsListJson()))
-    }
-
-    const onOpenWindow = (isOpen: boolean) => {
-        if (isOpen) {
-            loadApps()
-        }
-        setIsOpenWindow(isOpen)
+        const apps = AppProvider.getAppsListJson()
+        setAppList(apps)
     }
 
     const handleOpenApp = useCallback((appId: string) => {
-        launchApp(appId)
-    }, [launchApp])
+        AppProvider.launchApp(appId)
+    }, [AppProvider])
 
     const handleOpenUrlApp = useCallback((url: string) => {
-        console.log(url)
-        console.log(launchWebActivity)
-        launchWebActivity(url)
-    }, [launchWebActivity])
+        AppProvider.launchWebActivity(url)
+    }, [AppProvider])
 
     const handleCLickMore = useCallback(() => {
-        handleOpenWindow()
+        const isOpenWindow = floatingWindow.handleOpenWindow()
+        setIsOpenWindow(isOpenWindow)
+        if (isOpenWindow) {
+            loadApps()
+        }
     }, [])
 
     return (
         <div className="floatingWrapper">
-            <div className="mainArea">
+            <div className="mainArea" style={{height: windowParams.heightPx || 0}}>
+                {/*<div className="notification">Same notification</div>*/}
                    <Slider
                        slides={[
                            <h1>Slide 111</h1>,
@@ -63,6 +59,7 @@ const FloatingWindow: React.FC = () => {
                            <h1>Slide 5</h1>,
                        ]}
                    />
+                <TimeAndTemperature />
             </div>
             <AppList appList={appList} onOpenApp={handleOpenApp} onOpenURLApp={handleOpenUrlApp} />
             <MoreButton onClick={handleCLickMore} isOpen={isOpenWindow} />

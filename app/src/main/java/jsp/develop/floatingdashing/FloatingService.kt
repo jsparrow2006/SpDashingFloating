@@ -16,13 +16,26 @@ import android.view.View
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import jsp.develop.nativetoweb.AppProvider
 import jsp.develop.nativetoweb.LocalServer
 import jsp.develop.nativetoweb.nativeToWeb
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.properties.Delegates
 
+@Serializable
+data class WindowParams(
+    val withDp: Int,
+    val heightDp: Int,
+    val heightOpenDp: Int,
+    val withPx: Int,
+    val heightPx: Int,
+    val heightOpenPx: Int,
+    val posX: Int,
+    val posY: Int,
+    val isOpen: Boolean,
+)
 
 class FloatingService : Service() {
 
@@ -94,31 +107,59 @@ class FloatingService : Service() {
         }
     }
 
-    @get:JavascriptInterface
-    val currentWidth = layoutParams.width
-    @get:JavascriptInterface
-    val currentHeight = layoutParams.height
+    private fun dpToPx(dp: Int, context: Context): Int {
+        val density = context.resources.displayMetrics.density
+        return (dp / density).toInt()
+    }
 
     @JavascriptInterface
-    fun setWindowSize(width: Int, heigth: Int) {
+    fun setWindowWith(width: Int,) {
         layoutParams.width = width;
-        layoutParams.height = heigth;
         windowManager.updateViewLayout(floatingView, layoutParams)
     }
 
     @JavascriptInterface
-    fun handleOpenWindow() {
+    fun setWindowHeight(height: Int, isOpen: Boolean = false) {
+        layoutParams.height = height;
+        if (isOpen) {
+            floatingWindowOpenHeight = height
+        }
+        windowManager.updateViewLayout(floatingView, layoutParams)
+    }
+
+    @JavascriptInterface
+    fun getWindowParams(): String {
+        val winParams = WindowParams(
+            withDp = layoutParams.width,
+            heightDp = layoutParams.height,
+            heightOpenDp = floatingWindowOpenHeight,
+            withPx = dpToPx(layoutParams.width, this),
+            heightPx = dpToPx(layoutParams.height, this),
+            heightOpenPx = dpToPx(floatingWindowOpenHeight, this),
+            isOpen = layoutParams.height == floatingWindowOpenHeight,
+            posX = layoutParams.x,
+            posY = layoutParams.y
+        )
+        val jsonString = Json.encodeToString(winParams);
+        return jsonString
+    }
+
+    @JavascriptInterface
+    fun saveWindowParams() {
+        val editWindowParams = floatingWindowParams.edit()
+        editWindowParams.putInt("X", layoutParams.x)
+        editWindowParams.putInt("Y", layoutParams.y)
+        editWindowParams.putInt("Width", layoutParams.width)
+        editWindowParams.putInt("Height", layoutParams.height)
+        editWindowParams.putInt("OpenHeight", floatingWindowOpenHeight)
+        editWindowParams.apply()
+    }
+
+    @JavascriptInterface
+    fun handleOpenWindow(): Boolean {
         val handler = Handler(Looper.getMainLooper())
         handler.post {
-            val targetHeight: Number
-
-            if (layoutParams.height == floatingWindowHeight) {
-                targetHeight = floatingWindowOpenHeight
-                nativeBridge.sendEventToWeb("floatingWindow:isOpen", true)
-            } else {
-                targetHeight = floatingWindowHeight
-                nativeBridge.sendEventToWeb("floatingWindow:isOpen", false)
-            }
+            val targetHeight = if (layoutParams.height == floatingWindowHeight) floatingWindowOpenHeight else floatingWindowHeight
             val animator = ValueAnimator.ofInt(layoutParams.height, targetHeight)
             animator.addUpdateListener { animation ->
                 val updatedHeight = animation.animatedValue as Int
@@ -128,6 +169,8 @@ class FloatingService : Service() {
             animator.duration = 300
             animator.start()
         }
+
+        return layoutParams.height == floatingWindowHeight
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

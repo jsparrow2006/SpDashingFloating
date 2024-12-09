@@ -1,6 +1,8 @@
 import { IPubSub } from './pubSub';
+import INativeModules from './types/INativeModules';
 
 interface IAndroidSpNative {
+    nativeModules: Partial<INativeModules>;
     getRegisteredModules: () => string
 }
 

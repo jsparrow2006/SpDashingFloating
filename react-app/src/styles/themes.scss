@@ -1,5 +1,20 @@
 .dark-theme {
-  --primary-color: #3498db;
-  --background-color: #31353F;
-  --text-color: #333333;
+  --background-color: #292f3b;
+  --androoid-background-color: #131c2d;
+  --primary-color: #2084f3;
+  --secondary-color: #19a6ed;
+  --content-color: #e0e0e0;
+  --text-color: #e0e0e0;
+
+  --menu-item-gradient: linear-gradient(to right, #1B1E24, rgba(255, 255, 255, 0));
+  --devider-vertical-gradient: linear-gradient(to top, rgba(255, 255, 255, 0), white, rgba(255, 255, 255, 0));
+  --devider-horizontal-gradient: linear-gradient(to right, rgba(255, 255, 255, 0), white, rgba(255, 255, 255, 0));
+}
+
+html {
+  background-color: var(--background-color);
+}
+
+#root {
+  background-color: var(--background-color);
 }

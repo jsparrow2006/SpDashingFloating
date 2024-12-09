@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
         if (checkOverlayPermission()) {
             startFloatingService()
-            finish()
+//            finish()
         } else {
             requestOverlayPermission()
         }

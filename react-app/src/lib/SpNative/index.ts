@@ -1,53 +1,76 @@
 import PubSub from './pubSub'
+import INativeModules, { TNativeModulesFlat } from './types/INativeModules';
 
 type TSubscriber = (event: string, callback: (data: any) => void) => void;
 type TEvent = (event: string, data: any) => void;
 
 interface ISpNative {
-    getAndroidModules: <T extends object[]>(classes: string[] | string) => T[number];
+    getNativeModules: () => INativeModules;
+    getMethodsFromAndroidModules: (modules: string | string[]) => TNativeModulesFlat;
     initSpNativeClient: () => void;
-    subscribeEvent: TSubscriber,
-    unSubscribeEvent: TSubscriber
-    sendEvent: TEvent
+    subscribeEvent: TSubscriber;
+    unSubscribeEvent: TSubscriber;
+    sendEvent: TEvent;
 }
 
 const convertStringToArray = (arrayString: string): string[] => {
-    return arrayString
+    return (arrayString || '')
         .replace('[', '')
         .replace(']', '')
         .split(', ')
 }
 
-const initSpNativeClient = () => {
-    const registeredModules = window._AndroidSpNative.getRegisteredModules()
-    convertStringToArray(registeredModules).forEach((module) => {
-        console.log(`REGISTERED_NATIVE_MODULE: ${module}`)
-    })
-    if (!window.registeredModules) {
-        window.registeredModules = convertStringToArray(registeredModules);
-    }
-    window._AndroidPubSub = new PubSub();
+function JSONWrapper(func, context) {
+    return function(...args) {
+        let result = func.apply(context, args);
+        try {
+            return JSON.parse(result);
+        } catch (error) {
+            return null;
+        }
+
+        return result
+    };
 }
 
-const getAndroidModules = <T extends object[]>(modules: string[] | string): T[number] => {
-    const androidMethods = {};
+const initSpNativeClient = (): void => {
+    const registeredModules = convertStringToArray(window._AndroidSpNative.getRegisteredModules())
+    window._AndroidSpNative.nativeModules = {}
 
     const attachMethods = (androidModule: string) => {
         const methods = Object.keys(window[androidModule] || {})
         methods.forEach((method) => {
-            androidMethods[method] = window[androidModule][method].bind(window[androidModule])
+            if (!window._AndroidSpNative.nativeModules[androidModule]) {
+                window._AndroidSpNative.nativeModules[androidModule] = {}
+            }
+            window._AndroidSpNative.nativeModules[androidModule][method] = JSONWrapper(window[androidModule][method], window[androidModule])
         })
+        console.log(`\u001b[32mAdd ${androidModule} module: \u001b[31m[${methods.join(', ')}]`)
     }
+
+    registeredModules.forEach((androidClass) => {
+        attachMethods(androidClass)
+    })
+
+    window._AndroidPubSub = new PubSub();
+}
+
+const getNativeModules = (): INativeModules => {
+    return <INativeModules>window._AndroidSpNative.nativeModules
+}
+
+const getMethodsFromAndroidModules = (modules: string[] | string): TNativeModulesFlat => {
+    let androidMethods = {};
+
     if (typeof modules === 'string') {
-        attachMethods(modules)
+        androidMethods = {...window._AndroidSpNative.nativeModules[modules]}
     } else {
         modules.forEach((androidClass) => {
-            attachMethods(androidClass)
+            androidMethods = {...androidMethods, ...window._AndroidSpNative.nativeModules[androidClass]}
         })
     }
 
-
-    return androidMethods
+    return androidMethods as TNativeModulesFlat
 }
 
 const subscribeEvent: TSubscriber = (event, callback) => {
@@ -63,8 +86,9 @@ const sendEvent: TEvent = (event, data) => {
 }
 
 const SpNative: ISpNative = {
+    getNativeModules: getNativeModules,
     initSpNativeClient: initSpNativeClient,
-    getAndroidModules: getAndroidModules,
+    getMethodsFromAndroidModules: getMethodsFromAndroidModules,
     subscribeEvent: subscribeEvent,
     unSubscribeEvent: unSubscribeEvent,
     sendEvent: sendEvent

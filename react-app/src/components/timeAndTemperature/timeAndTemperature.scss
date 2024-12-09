@@ -1,0 +1,31 @@
+.temp,
+.time {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  width: 40%;
+  height: 35px;
+  font-size: 30px;
+  color: var(--text-color);
+  margin-bottom: 5px;
+}
+
+.time {
+  left: 0;
+}
+.temp {
+  right: 0;
+
+  .snow {
+    font-size: 23px;
+    margin-right: 7px;
+    color: red;
+    margin-bottom: 3px;
+  }
+
+  .tempCount {
+    margin-right: 3px;
+  }
+}

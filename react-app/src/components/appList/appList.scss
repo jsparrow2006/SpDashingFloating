@@ -9,7 +9,7 @@
   .devider {
     width: 80%;
     height: 1px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), white, rgba(255, 255, 255, 0));
+    background: var(--devider-horizontal-gradient);
     margin-bottom: 15px;
   }
 
@@ -18,7 +18,7 @@
     flex-wrap: wrap;
     margin-top: 10px;
     width: 100%;
-    max-height: calc(100% - 10px);
+    max-height: calc(100% - 90px);
     overflow-y: auto;
     padding: 10px 0px;
     align-items: flex-start;
