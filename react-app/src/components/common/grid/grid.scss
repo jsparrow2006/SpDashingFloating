@@ -1,0 +1,16 @@
+.grid {
+  display: flex;
+  box-sizing: border-box;
+  height: fit-content;
+  padding: 10px;
+  flex-wrap: wrap;
+  width: calc((100% / 12) * var(--width));
+
+  &.column {
+    flex-direction: column;
+  }
+
+  &.row {
+    flex-direction: row;
+  }
+}

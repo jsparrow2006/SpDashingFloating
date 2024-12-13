@@ -1,5 +1,7 @@
 import PubSub from './pubSub'
 import INativeModules, { TNativeModulesFlat } from './types/INativeModules';
+import NativePromise, { INativePromise } from './nativePromise';
+import nativePromise from './nativePromise';
 
 type TSubscriber = (event: string, callback: (data: any) => void) => void;
 type TEvent = (event: string, data: any) => void;
@@ -33,9 +35,20 @@ function JSONWrapper(func, context) {
     };
 }
 
+function promiseWrapper(nativePromises, func, context) {
+    return  function(...args): Promise<any> {
+        const {id, promise} = nativePromises.add();
+        func.call(context, String(id), ...args);
+
+        return promise
+    };
+}
+
 const initSpNativeClient = (): void => {
     const registeredModules = convertStringToArray(window._AndroidSpNative.getRegisteredModules())
     window._AndroidSpNative.nativeModules = {}
+    window._AndroidPubSub = new PubSub();
+    window._AndroidSpNative.Promises = new NativePromise()
 
     const attachMethods = (androidModule: string) => {
         const methods = Object.keys(window[androidModule] || {})
@@ -43,7 +56,11 @@ const initSpNativeClient = (): void => {
             if (!window._AndroidSpNative.nativeModules[androidModule]) {
                 window._AndroidSpNative.nativeModules[androidModule] = {}
             }
-            window._AndroidSpNative.nativeModules[androidModule][method] = JSONWrapper(window[androidModule][method], window[androidModule])
+            // window._AndroidSpNative.nativeModules[androidModule][method] = JSONWrapper(window[androidModule][method], window[androidModule])
+            // console.log(window[androidModule][method])
+            window._AndroidSpNative.nativeModules[androidModule][method] = method.toLowerCase().startsWith('async') ?
+                promiseWrapper(window._AndroidSpNative.Promises, window[androidModule][method], window[androidModule]) :
+                JSONWrapper(window[androidModule][method], window[androidModule])
         })
         console.log(`\u001b[32mAdd ${androidModule} module: \u001b[31m[${methods.join(', ')}]`)
     }
@@ -51,8 +68,6 @@ const initSpNativeClient = (): void => {
     registeredModules.forEach((androidClass) => {
         attachMethods(androidClass)
     })
-
-    window._AndroidPubSub = new PubSub();
 }
 
 const getNativeModules = (): INativeModules => {

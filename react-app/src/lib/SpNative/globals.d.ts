@@ -3,7 +3,8 @@ import INativeModules from './types/INativeModules';
 
 interface IAndroidSpNative {
     nativeModules: Partial<INativeModules>;
-    getRegisteredModules: () => string
+    getRegisteredModules: () => string;
+    Promises: any
 }
 
 declare global {

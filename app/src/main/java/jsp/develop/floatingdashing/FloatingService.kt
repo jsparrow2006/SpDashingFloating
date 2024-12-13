@@ -7,15 +7,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.PixelFormat
+import android.os.Binder
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import android.widget.Toast
 import jsp.develop.nativetoweb.AppProvider
 import jsp.develop.nativetoweb.LocalServer
 import jsp.develop.nativetoweb.nativeToWeb
@@ -23,6 +26,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.properties.Delegates
+
 
 @Serializable
 data class WindowParams(
@@ -48,6 +52,11 @@ class FloatingService : Service() {
     private var floatingWindowWidth: Int = 0
     private var floatingWindowHeight: Int = 0
     private var floatingWindowOpenHeight: Int = 0
+    private val binder = LocalBinder()
+
+    inner class LocalBinder : Binder() {
+        fun getService(): FloatingService = this@FloatingService
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     private var layoutParams = WindowManager.LayoutParams(
@@ -113,9 +122,11 @@ class FloatingService : Service() {
     }
 
     @JavascriptInterface
-    fun setWindowWith(width: Int,) {
+    fun setWindowWith(width: Int): String {
         layoutParams.width = width;
+        floatingWindowWidth = width;
         windowManager.updateViewLayout(floatingView, layoutParams)
+        return getWindowParams()
     }
 
     @JavascriptInterface
@@ -123,22 +134,38 @@ class FloatingService : Service() {
         layoutParams.height = height;
         if (isOpen) {
             floatingWindowOpenHeight = height
+        } else {
+            floatingWindowHeight = height;
         }
+        windowManager.updateViewLayout(floatingView, layoutParams)
+    }
+
+    @JavascriptInterface
+    fun setWindowPositionX(position: Int) {
+        layoutParams.x = position;
+        floatingWindowX = position;
+        windowManager.updateViewLayout(floatingView, layoutParams)
+    }
+
+    @JavascriptInterface
+    fun setWindowPositionY(position: Int) {
+        layoutParams.y = position;
+        floatingWindowY = position;
         windowManager.updateViewLayout(floatingView, layoutParams)
     }
 
     @JavascriptInterface
     fun getWindowParams(): String {
         val winParams = WindowParams(
-            withDp = layoutParams.width,
-            heightDp = layoutParams.height,
+            withDp = floatingWindowWidth,
+            heightDp = floatingWindowHeight,
             heightOpenDp = floatingWindowOpenHeight,
-            withPx = dpToPx(layoutParams.width, this),
-            heightPx = dpToPx(layoutParams.height, this),
+            withPx = dpToPx(floatingWindowWidth, this),
+            heightPx = dpToPx(floatingWindowHeight, this),
             heightOpenPx = dpToPx(floatingWindowOpenHeight, this),
             isOpen = layoutParams.height == floatingWindowOpenHeight,
-            posX = layoutParams.x,
-            posY = layoutParams.y
+            posX = floatingWindowX,
+            posY = floatingWindowY
         )
         val jsonString = Json.encodeToString(winParams);
         return jsonString
@@ -147,12 +174,14 @@ class FloatingService : Service() {
     @JavascriptInterface
     fun saveWindowParams() {
         val editWindowParams = floatingWindowParams.edit()
-        editWindowParams.putInt("X", layoutParams.x)
-        editWindowParams.putInt("Y", layoutParams.y)
-        editWindowParams.putInt("Width", layoutParams.width)
-        editWindowParams.putInt("Height", layoutParams.height)
+        editWindowParams.putInt("X", floatingWindowX)
+        editWindowParams.putInt("Y", floatingWindowY)
+        editWindowParams.putInt("Width", floatingWindowWidth)
+        editWindowParams.putInt("Height", floatingWindowHeight)
         editWindowParams.putInt("OpenHeight", floatingWindowOpenHeight)
         editWindowParams.apply()
+        Log.d("Save window params", "SAVED")
+        Toast.makeText(applicationContext, "Параметры виджета сохранены", Toast.LENGTH_LONG).show()
     }
 
     @JavascriptInterface
@@ -173,5 +202,7 @@ class FloatingService : Service() {
         return layoutParams.height == floatingWindowHeight
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    override fun onBind(intent: Intent?): IBinder {
+        return binder
+    }
 }

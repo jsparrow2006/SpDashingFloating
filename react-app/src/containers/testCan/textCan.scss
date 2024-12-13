@@ -1,0 +1,14 @@
+.canList {
+  margin: 20px;
+  font-size: 25px;
+  width: 100%;
+  overflow-y: scroll;
+
+  .canDataRow {
+    margin-bottom: 5px;
+
+    .key {
+      color: red;
+    }
+  }
+}

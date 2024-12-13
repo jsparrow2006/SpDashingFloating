@@ -1,8 +1,10 @@
 .sliderWrapper {
   display: flex;
+  position: relative;
   flex-direction: column;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 
   .pointsWrapper {
     display: flex;
@@ -24,18 +26,56 @@
     }
   }
 
+  .button {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    color: var(--text-color);
+    position: absolute;
+    height: 100%;
+    width: 160px;
+    border-radius: 50%;
+    top: 0;
+    padding: 15px;
+    font-size: 50px;
+    cursor: pointer;
+    z-index: 1000;
+
+    &:active {
+      background: var(--primary-color-30);
+    }
+
+    &.prev {
+      left: -100px;
+      justify-content: flex-end;
+    }
+
+    &.next {
+      right: -100px;
+      justify-content: flex-start;
+    }
+  }
+
   .slider {
     display: flex;
+    flex-direction: row;
     width: 100%;
     height: 100%;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    transition: transform 0.5s ease;
 
     .slide {
-      min-width: 100vw;
+      min-width: 100%;
       height: 100%;
       scroll-snap-align: start;
       color: white;
+      opacity: 0;
+
+      &.active {
+        opacity: 1;
+      }
+    }
+    .active {
+      opacity: 1;
     }
   }
 }

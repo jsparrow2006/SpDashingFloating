@@ -22,7 +22,7 @@ const TimeAndTemperature: React.FC = (props) => {
 
     return (
         <>
-            <div className="time">{date.getHours()}:{date.getMinutes()}</div>
+            <div className="time">{String(date.getHours()).padStart(2, '0')}:{String(date.getMinutes()).padStart(2, '0')}</div>
             <div className="temp"><FaRegSnowflake className="snow" /><span className="tempCount">-28</span><TbTemperatureCelsius className="type"/></div>
         </>
     )

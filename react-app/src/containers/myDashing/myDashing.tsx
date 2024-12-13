@@ -3,6 +3,7 @@ import { Outlet, Link } from 'react-router-dom';
 
 import { FaCog, FaCar } from 'react-icons/fa';
 import { AiFillDashboard } from "react-icons/ai";
+import { MdDataObject } from "react-icons/md";
 
 import LeftMenu, { IMenuItem } from '../../components/leftMenu/LeftMenu';
 
@@ -21,6 +22,11 @@ const MyDashing: React.FC = () => {
                 icon: <AiFillDashboard />,
                 caption: 'Одометр',
                 url: 'odo'
+            },
+            {
+                icon: <MdDataObject />,
+                caption: 'Test CAN data',
+                url: 'can'
             },
             {
                 icon: <FaCog />,

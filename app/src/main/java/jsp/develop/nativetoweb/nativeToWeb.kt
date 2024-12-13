@@ -1,6 +1,8 @@
 package jsp.develop.nativetoweb
 
 import android.annotation.SuppressLint
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
@@ -8,11 +10,30 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import jsp.develop.floatingdashing.BuildConfig
+import jsp.develop.floatingdashing.FloatingService
+
+class JSPromise(private val webView: WebView) {
+
+    fun resolve(id: String, data: Any) {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
+            webView.evaluateJavascript("window._AndroidSpNative.Promises.resolve('$id', '$data')", null)
+        }
+    }
+
+    fun reject(id: String, error: Any) {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
+            webView.evaluateJavascript("window._AndroidSpNative.Promises.reject('$id', '$error')", null)
+        }
+    }
+}
 
 
 @SuppressLint("SetJavaScriptEnabled")
-class nativeToWeb(val webView: WebView) {
-    val webSettings: WebSettings = webView.getSettings()
+class nativeToWeb(private val webView: WebView) {
+    private val webSettings: WebSettings = webView.getSettings()
+    val JSPromise: JSPromise = JSPromise(webView)
 
     @get:JavascriptInterface
     val registeredModules  = mutableListOf<String>();
@@ -37,7 +58,10 @@ class nativeToWeb(val webView: WebView) {
     }
 
     fun sendEventToWeb(event: String, data: Any) {
-        webView.evaluateJavascript("window._AndroidPubSub.publish('$event', $data)", null)
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
+            webView.evaluateJavascript("window._AndroidPubSub.publish('$event', $data)", null)
+        }
     }
 
     @SuppressLint("JavascriptInterface")

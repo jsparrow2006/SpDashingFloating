@@ -1,0 +1,19 @@
+.contentCardWrapper {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  padding: 30px;
+  border-radius: 12px;
+  background-color: var(--card-bg-color);
+  margin-bottom: 15px;
+
+  .caption {
+    font-size: 30px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+
+    &.small {
+      font-size: 15px;
+    }
+  }
+}

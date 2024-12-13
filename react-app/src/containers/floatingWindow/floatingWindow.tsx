@@ -10,6 +10,8 @@ import AppList from '../../components/appList/appList';
 import MoreButton from '../../components/common/moreButton/moreButton'
 import TimeAndTemperature from '../../components/timeAndTemperature/timeAndTemperature'
 
+import SlideGear from '../../components/slideGear/SlideGear';
+
 import './floatingWindow.scss'
 
 const FloatingWindow: React.FC = () => {
@@ -21,9 +23,19 @@ const FloatingWindow: React.FC = () => {
     const AppProvider = SpNative.getNativeModules().AppProvider
 
     useEffect(() => {
-        setWindowParams(floatingWindow.getWindowParams())
+        getWidgetWindowParams()
         loadApps()
+        addEventListener("resize", getWidgetWindowParams);
+
+        return () => {
+            removeEventListener("resize", getWidgetWindowParams)
+        }
     }, [])
+
+    const getWidgetWindowParams = useCallback(() => {
+        const windowParams = floatingWindow.getWindowParams()
+        setWindowParams(windowParams)
+    }, []);
 
     const loadApps = () => {
         const apps = AppProvider.getAppsListJson()
@@ -48,11 +60,11 @@ const FloatingWindow: React.FC = () => {
 
     return (
         <div className="floatingWrapper">
-            <div className="mainArea" style={{height: windowParams.heightPx || 0}}>
-                {/*<div className="notification">Same notification</div>*/}
+            <div className="mainArea" style={{height: `${windowParams.heightPx}px` || 0}}>
+                {/*<div className="notification">Some notification</div>*/}
                    <Slider
                        slides={[
-                           <h1>Slide 111</h1>,
+                           <SlideGear />,
                            <h1>Slide 2</h1>,
                            <h1>Slide 3</h1>,
                            <h1>Slide 4</h1>,

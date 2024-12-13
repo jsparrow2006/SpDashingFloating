@@ -5,7 +5,6 @@
     android:id="@+id/main"
     android:layout_width="1918px"
     android:layout_height="992px"
-    android:background="@drawable/bg_mock"
     tools:context=".MainActivity">
 
     <TextView

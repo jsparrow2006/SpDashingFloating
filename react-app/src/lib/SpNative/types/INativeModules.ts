@@ -1,9 +1,11 @@
 import IAppProvider from './IAppProvider';
 import IFloatingWindowProvider from './IFloatingWindowProvider';
+import IUpdateManager from './IUpdateManager';
 
 interface INativeModules {
     AppProvider: IAppProvider,
     FloatingWindow: IFloatingWindowProvider,
+    UpdateManager: IUpdateManager
 }
 
 export type TNativeModulesFlat = {

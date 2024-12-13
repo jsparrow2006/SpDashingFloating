@@ -16,6 +16,14 @@ body {
   place-items: center;
 }
 
+*:focus {
+  outline: none;
+}
+
+*:active {
+  outline: none;
+}
+
 //* {
 //  outline: 1px solid green;
 //}

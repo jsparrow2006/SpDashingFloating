@@ -898,22 +898,39 @@ public class MBCanEngine extends MBCanClient {
             i = 0;
             for (int size = arrayList.size() - 1; size >= 0; size--) {
                 int value = arrayList.get(size).getValue();
+                boolean found = false;
                 Iterator<MBCanDataType> it = this.mSubscribedTypeList.iterator();
-                while (true) {
-                    if (it.hasNext()) {
-                        if (it.next().getValue() == value) {
-                            arrayList.remove(size);
-                            break;
-                        }
-                    } else {
-                        for (MBCanSubscribeBase mBCanSubscribeBase : this.mSubscribeBases) {
-                            if (value == mBCanSubscribeBase.getSubscribeType()) {
-                                arrayList2.add(mBCanSubscribeBase);
-                                i++;
-                            }
+
+                while (it.hasNext()) {
+                    if (it.next().getValue() == value) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    for (MBCanSubscribeBase mBCanSubscribeBase : this.mSubscribeBases) {
+                        if (value == mBCanSubscribeBase.getSubscribeType()) {
+                            arrayList2.add(mBCanSubscribeBase);
+                            i++;
                         }
                     }
                 }
+
+//                while (true) {
+//                    if (it.hasNext()) {
+//                        if (it.next().getValue() == value) {
+//                            arrayList.remove(size);
+//                            break;
+//                        }
+//                    } else {
+//                        for (MBCanSubscribeBase mBCanSubscribeBase : this.mSubscribeBases) {
+//                            if (value == mBCanSubscribeBase.getSubscribeType()) {
+//                                arrayList2.add(mBCanSubscribeBase);
+//                                i++;
+//                            }
+//                        }
+//                    }
+//                }
             }
         } else {
             arrayList2.addAll(this.mSubscribeBases);
@@ -927,6 +944,7 @@ public class MBCanEngine extends MBCanClient {
         } else if (arrayList == null) {
             this.mSubscribedTypeList.addAll(getAllCanDataType());
         }
+        Log.d(TAG, this.mSubscribedTypeList.toString());
         return i;
     }
 

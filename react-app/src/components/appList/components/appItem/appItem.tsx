@@ -1,12 +1,12 @@
 import React, { MouseEventHandler, useCallback } from 'react';
 
-import { IApplication } from '../../appList';
+import IApp from '../../../../lib/SpNative/types/IApp';
 
 import './appItem.scss'
 
 interface IAppItem {
     onClick: (packageName: string) => void
-    appItem: IApplication
+    appItem: IApp
 }
 
 const AppItem: React.FC<IAppItem> = (props) => {
@@ -14,7 +14,6 @@ const AppItem: React.FC<IAppItem> = (props) => {
 
     const handleClickApp = useCallback((event: any) => {
         const appId = event.target.id
-        console.log(appId)
         if (appId) {
             onClick(appId)
         }

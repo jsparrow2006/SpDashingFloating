@@ -11,6 +11,7 @@ import MyDashing from './containers/myDashing/myDashing'
 import AppSettings from './containers/appSettings/appSettings'
 import Test from './containers/test/test'
 import NativeContainers from './lib/SpNative/containers/NativeContainers';
+import TestCan from './containers/testCan/TestCan';
 
 SpNative.initSpNativeClient()
 createRoot(document.getElementById('root')!).render(
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/myDashing" element={<MyDashing />}>
                       <Route path="info" element={<h2>info</h2>} />
                       <Route path="odo" element={<h2>ODO</h2>} />
+                      <Route path="can" element={<TestCan />} />
                       <Route path="settings" element={<AppSettings />} />
                   </Route>
                   <Route path="/test" element={<Test />} />

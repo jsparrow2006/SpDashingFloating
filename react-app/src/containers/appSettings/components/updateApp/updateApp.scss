@@ -1,0 +1,37 @@
+.updateWrapper {
+
+  .checkUpdate {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .version {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+  }
+
+  .newVersion {
+    color: red;
+  }
+
+  .error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    color: red;
+    font-size: 20px;
+  }
+
+  .releaseNotes {
+    font-size: 20px;
+
+    span {
+      font-size: 30px;
+    }
+  }
+}

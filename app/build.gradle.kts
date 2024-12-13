@@ -19,8 +19,24 @@ android {
             buildConfigField("boolean", "IS_DEV", "true")
         }
         release {
+//            isMinifyEnabled = true
+//            isShrinkResources = true
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//
+//                // Includes a local, custom Proguard rules file
+//                "proguard-rules.pro"
+//            )
             buildConfigField("String", "URL", "\"http://localhost:8080\"")
             buildConfigField("boolean", "IS_DEV", "false")
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "x86", "x86_64")
         }
     }
 
@@ -36,14 +52,15 @@ android {
         minSdk = 28
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+//            isMinifyEnabled = true
+//            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
